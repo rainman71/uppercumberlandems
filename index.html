@@ -275,7 +275,6 @@
 <div class="util">
   <div class="wrap">
     <span class="r4"><span class="dot" aria-hidden="true"></span> Tennessee EMS <b>Region 4</b> · The Upper Cumberland</span>
-    <a href="#portal">Member login →</a>
   </div>
 </div>
 
@@ -294,7 +293,6 @@
       <a href="#counties">Counties</a>
       <a href="#graduation">Graduation</a>
       <a href="#about">About</a>
-      <a href="#portal">Member Login</a>
       <a class="navcta" href="#contact">Contact</a>
     </nav>
     <button class="menubtn" id="menubtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -311,8 +309,8 @@
       <h1 style="margin-top:22px">Emergency care<br><span class="em">starts here.</span></h1>
       <p class="lead">Fourteen counties. One standard of prehospital care. We're the association of EMS directors across the Upper Cumberland &mdash; sharing training, setting regional standards, and hosting the annual Fall Symposium in Cookeville.</p>
       <div class="hcta">
-        <a class="btn btn-gold" href="#symposium">Register for the Fall Symposium</a>
-        <a class="btn btn-ghost" href="#portal">Member login</a>
+        <a class="btn btn-gold" href="#symposium">Fall Symposium &mdash; coming soon</a>
+        
       </div>
     </div>
     <div>
@@ -505,6 +503,7 @@
 </section>
 
 <!-- directors' portal -->
+<!-- MEMBERS AREA hidden for launch (login backend not built yet). Restore by removing this comment wrapper.
 <section class="join" id="portal">
   <div class="wrap">
     <div>
@@ -526,6 +525,7 @@
     </div>
   </div>
 </section>
+-->
 
 <!-- in memoriam -->
 <section class="memoriam" id="memoriam">
@@ -537,7 +537,7 @@
     <h2>Hoyte Eugene Hale</h2>
     <div class="role">DeKalb County EMS Director · Deputy Chief, Smithville Fire Department</div>
     <p>A leader in Region 4 EMS who mentored the medics around him and championed the very awards this association still presents in his honor. We remember his service.</p>
-    <a class="obit" href="https://www.lovecantrell.com/obituary/hoyte-hale">Read the obituary →</a>
+    <a class="obit" href="https://www.lovecantrell.com/obituary/hoyte-hale" target="_blank" rel="noopener">Read the obituary →</a>
   </div>
 </section>
 
@@ -559,7 +559,6 @@
       <div class="foot-contact">
         <h4>Get in touch</h4>
         <a href="#contact">Contact the association</a>
-        <a href="#portal">Member login</a>
         <a href="#symposium">Symposium registration</a>
         <a href="#symposium">Vendor registration</a>
       </div>
@@ -593,21 +592,29 @@
     var shapes=[].slice.call(document.querySelectorAll('.cty-shape'));
     var labels=[].slice.call(document.querySelectorAll('.cty-label'));
     var chips=[].slice.call(document.querySelectorAll('.cty-chip'));
+
+    var locked='47035';   // the county that "sticks"; hover only previews
+    var svg=shapes.length?shapes[0].ownerSVGElement:null;
+
     function raise(fips){
-      var s=shapes.filter(function(x){return x.dataset.fips===fips;})[0];
-      var l=labels.filter(function(x){return x.dataset.fips===fips;})[0];
-      if(s) s.parentNode.appendChild(s);
-      if(l) l.parentNode.appendChild(l);
+      // move the active shape+label to the end so the highlight draws on top
+      var s,l,i;
+      for(i=0;i<shapes.length;i++){ if(shapes[i].dataset.fips===fips){s=shapes[i];break;} }
+      for(i=0;i<labels.length;i++){ if(labels[i].dataset.fips===fips){l=labels[i];break;} }
+      if(s&&s.parentNode) s.parentNode.appendChild(s);
+      if(l&&l.parentNode) l.parentNode.appendChild(l);
     }
     function row(label,val){return '<div class="row"><span class="rl">'+label+'</span><span class="rv">'+val+'</span></div>';}
-    function render(fips){
+
+    function paint(fips){
       var c=CTY[fips]; if(!c) return;
-      shapes.forEach(function(x){x.classList.toggle('active',x.dataset.fips===fips);});
-      labels.forEach(function(x){x.classList.toggle('active',x.dataset.fips===fips);});
-      chips.forEach(function(x){x.classList.toggle('active',x.dataset.fips===fips);});
+      var i;
+      for(i=0;i<shapes.length;i++) shapes[i].classList.toggle('active',shapes[i].dataset.fips===fips);
+      for(i=0;i<labels.length;i++) labels[i].classList.toggle('active',labels[i].dataset.fips===fips);
+      for(i=0;i<chips.length;i++)  chips[i].classList.toggle('active', chips[i].dataset.fips===fips);
       raise(fips);
       var rows='';
-      if(c.dir) rows+=row('Director',c.dir);
+      if(c.dir)  rows+=row('Director',c.dir);
       if(c.seat) rows+=row('County seat',c.seat);
       if(c.phone) rows+=row('Non-emergency','<a href="tel:'+c.phone.replace(/[^0-9]/g,'')+'">'+c.phone+'</a>');
       var cta;
@@ -624,24 +631,32 @@
         (rows?'<div class="rows">'+rows+'</div>':'')+
         '<p class="note">'+c.note+'</p>'+cta;
     }
-    function empty(){
-      detail.innerHTML='<div class="k">Member directory</div>'+
-        '<h3>Select a county</h3>'+
-        '<p class="cty-empty">Hover, tap, or use the buttons below to see the EMS service for any of the fourteen Region 4 counties.</p>';
-    }
+
+    function lock(fips){ locked=fips; paint(fips); }   // click/tap: sticks
+    function preview(fips){ paint(fips); }             // hover: temporary
+    function restore(){ paint(locked); }               // back to the stuck one
+
     shapes.forEach(function(s){
       var f=s.dataset.fips;
-      s.addEventListener('mouseenter',function(){render(f);});
-      s.addEventListener('click',function(){render(f);});
-      s.addEventListener('focus',function(){render(f);});
-      s.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();render(f);}});
+      s.style.cursor='pointer';
+      s.addEventListener('click',function(e){ e.preventDefault(); lock(f); });
+      s.addEventListener('mouseover',function(){ if(f!==locked) preview(f); });
+      s.addEventListener('mouseout', function(){ restore(); });
+      s.addEventListener('focus',   function(){ preview(f); });
+      s.addEventListener('blur',    function(){ restore(); });
+      s.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lock(f); } });
     });
+
     chips.forEach(function(ch){
       var f=ch.dataset.fips;
-      ch.addEventListener('click',function(){render(f);detail.scrollIntoView({behavior:'smooth',block:'nearest'});});
-      ch.addEventListener('mouseenter',function(){render(f);});
+      ch.addEventListener('click',function(e){ e.preventDefault(); lock(f); detail.scrollIntoView({behavior:'smooth',block:'nearest'}); });
+      ch.addEventListener('mouseover',function(){ if(f!==locked) preview(f); });
+      ch.addEventListener('mouseout', function(){ restore(); });
+      ch.addEventListener('focus',    function(){ preview(f); });
+      ch.addEventListener('blur',     function(){ restore(); });
     });
-    render('47035'); // default to Cumberland (populated example)
+
+    paint(locked); // default to Cumberland
   })();
 </script>
 </body>
