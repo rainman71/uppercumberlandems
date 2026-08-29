@@ -139,6 +139,19 @@
   .symp-panel .where{color:#a9bdd8;font-size:15px;margin-bottom:20px}
   .symp-panel .tbc{display:inline-block;font-family:"Space Mono";font-size:11px;letter-spacing:.08em;color:#0a1c3a;background:#cfe0f6;padding:3px 8px;border-radius:5px;margin-bottom:20px}
   .symp-panel .btn{width:100%;justify-content:center;margin-bottom:10px}
+  
+  /* two-line pay buttons */
+  .paygrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .paygrid.stack{grid-template-columns:1fr}
+  .btn-pay{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;border-radius:12px;padding:14px 10px;border:1px solid transparent;cursor:pointer;transition:transform .12s ease,filter .15s ease}
+  .btn-pay:active{transform:translateY(1px)}
+  .btn-pay .pl{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.85}
+  .btn-pay .pp{font-family:"Archivo",sans-serif;font-weight:900;font-size:22px;letter-spacing:-.01em}
+  .gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#241a06}
+  .gold:hover{filter:brightness(1.05)}
+  .outline{background:transparent;color:#e6c98a;border-color:rgba(224,169,62,.55)}
+  .outline:hover{background:rgba(224,169,62,.1)}
+  @media(max-width:420px){.paygrid{grid-template-columns:1fr}}
 
   /* awards */
   .aw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -378,11 +391,16 @@
       </div>
       <div class="symp-panel">
         <div class="kicker">Next symposium</div>
-        <div class="when">Fall 2026</div>
+        <div class="when">October 14-16, 2026</div>
         <div class="where">Cookeville, Tennessee</div>
-        <div class="tbc">Dates to be confirmed</div>
-        <!-- PAYPAL: fixed $400 PayPal checkout link (amount is set inside PayPal on this link) -->
-        <a class="btn btn-gold" href="https://www.paypal.com/ncp/payment/STZ7FQ3QTLDQU" target="_blank" rel="noopener">Pay registration &middot; $400</a>
+        <div class="paygrid">
+            <a class="btn-pay gold" href="https://www.paypal.com/ncp/payment/5273S6MYGYFF2" target="_blank" rel="noopener">
+                <span class="pl">Provider</span><span class="pp">$125</span>
+            </a>
+            <a class="btn-pay outline" href="#https://www.paypal.com/ncp/payment/STZ7FQ3QTLDQU" target="_blank" rel="noopener">
+                <span class="pl">Vendor</span><span class="pp">$400</span>
+            </a>
+        </div>
         <div class="pay-note">
           <svg viewBox="0 0 24 24" fill="none" stroke="#8fb8ef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
           <!-- INVOICE: points to contact section. Swap href to mailto:THEIR_EMAIL when confirmed. -->
@@ -559,7 +577,7 @@
       </div>
       <div class="foot-contact">
         <h4>Get in touch</h4>
-        <a href="#contact">Contact the association</a>
+        <a href="mailto:ucemsda@gmail.com">Contact the association</a>
         <a href="#symposium">Symposium registration</a>
         <a href="#symposium">Vendor registration</a>
       </div>
